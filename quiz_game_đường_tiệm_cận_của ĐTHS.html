@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Đường Tiệm Cận Của Đồ Thị Hàm Số - Toán 12</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        neon: {
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            blue: '#3b82f6',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite alternate',
+                        'shake': 'shake 0.4s ease-in-out',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(168, 85, 247, 0.4)' },
+                            '100%': { boxShadow: '0 0 30px rgba(236, 72, 153, 0.7)' }
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%, 60%': { transform: 'translateX(-8px)' },
+                            '40%, 80%': { transform: 'translateX(8px)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at top left, #0f172a, #020617, #090d16);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+        .option-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #ec4899;
+            box-shadow: 0 6px 20px -2px rgba(236, 72, 153, 0.4);
+            background: rgba(88, 28, 135, 0.4);
+        }
+        .katex-display {
+            margin: 0.5em 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 0;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-100 flex flex-col justify-between min-h-screen p-3 md:p-6">
+
+    <!-- HEADER -->
+    <header class="max-w-4xl mx-auto w-full flex items-center justify-between py-3 px-5 glass-card rounded-2xl mb-4">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 animate-float">
+                <i class="fa-solid fa-chart-line text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-base md:text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400">
+                    ASYMPTOTES OF FUNCTIONS
+                </h1>
+                <p class="text-xs text-slate-400">Đường Tiệm Cận Đồ Thị Hàm Số - Toán 12</p>
+            </div>
+        </div>
+
+        <button id="sound-toggle-btn" class="w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-purple-500/30 flex items-center justify-center transition-all shadow-md" title="Bật/Tắt âm thanh">
+            <i class="fa-solid fa-volume-high text-purple-400" id="sound-icon"></i>
+        </button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl mx-auto w-full flex-grow flex items-center justify-center relative">
+
+        <!-- 1. START SCREEN -->
+        <div id="start-screen" class="w-full glass-card rounded-3xl p-6 md:p-10 text-center relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-block p-4 rounded-full bg-slate-800/90 border border-purple-500/40 mb-4 shadow-xl">
+                <span class="text-4xl">📉</span>
+            </div>
+
+            <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-3">
+                Thử Thách Các Đường Tiệm Cận
+            </h2>
+            <p class="text-slate-300 text-sm md:text-base max-w-xl mx-auto mb-6">
+                Luyện tập và làm chủ kĩ năng tìm tiệm cận đứng, tiệm cận ngang của hàm số chứa phân thức, căn thức và bài toán chứa tham số $m$!
+            </p>
+
+            <!-- Structure Badge Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8 text-left">
+                <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 backdrop-blur-sm">
+                    <div class="flex items-center space-x-2 text-cyan-300 font-semibold mb-1">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Phân bổ 10 câu</span>
+                    </div>
+                    <p class="text-xs text-slate-400">3 Nhận biết | 5 Thông hiểu | 2 Vận dụng</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/30 backdrop-blur-sm">
+                    <div class="flex items-center space-x-2 text-purple-300 font-semibold mb-1">
+                        <i class="fa-solid fa-stopwatch"></i>
+                        <span>Thời gian</span>
+                    </div>
+                    <p class="text-xs text-slate-400">60 giây suy luận cho mỗi câu hỏi</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-pink-950/40 border border-pink-500/30 backdrop-blur-sm">
+                    <div class="flex items-center space-x-2 text-pink-300 font-semibold mb-1">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Combo Streak</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Đúng liên tiếp nhân thêm điểm thưởng lớn</p>
+                </div>
+            </div>
+
+            <button id="start-btn" class="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500 hover:from-cyan-400 hover:to-pink-400 text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-purple-600/30 transform hover:-translate-y-1 transition-all">
+                <i class="fa-solid fa-play mr-2"></i> Bắt Đầu Làm Bài
+            </button>
+        </div>
+
+        <!-- 2. QUIZ SCREEN -->
+        <div id="quiz-screen" class="w-full glass-card rounded-3xl p-5 md:p-8 hidden relative">
+            <!-- Header Bar inside Quiz -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-700/60">
+                <div class="flex items-center space-x-3">
+                    <span id="question-count" class="px-3 py-1.5 rounded-xl bg-purple-950/90 border border-purple-500/50 text-purple-300 font-bold text-sm">
+                        Câu 1/10
+                    </span>
+                    <span id="difficulty-badge" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold">
+                        Nhận biết
+                    </span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-1.5 text-amber-400 font-bold text-sm bg-amber-950/40 px-3 py-1 rounded-xl border border-amber-500/30">
+                        <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
+                        <span>Streak: <span id="streak-count">0</span></span>
+                    </div>
+                    <div class="flex items-center space-x-1.5 text-purple-300 font-bold text-sm bg-purple-950/40 px-3 py-1 rounded-xl border border-purple-500/30">
+                        <i class="fa-solid fa-trophy text-amber-400"></i>
+                        <span>Điểm: <span id="score-display">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Progress Bar -->
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-6 border border-purple-900/40">
+                <div id="timer-bar" class="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 h-full w-full transition-all duration-1000 ease-linear"></div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-6 bg-slate-900/80 p-5 rounded-2xl border border-purple-500/20 min-h-[110px] flex items-center shadow-inner">
+                <div id="question-text" class="text-base md:text-lg font-medium text-slate-100 leading-relaxed w-full">
+                    <!-- KaTeX question content -->
+                </div>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-6">
+                <!-- Dynamic options -->
+            </div>
+
+            <!-- Solution Explanation Box -->
+            <div id="explanation-box" class="hidden mt-4 p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 text-sm shadow-xl">
+                <div class="flex items-center space-x-2 text-pink-400 font-bold mb-2">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Lời giải chi tiết:</span>
+                </div>
+                <div id="explanation-content" class="text-slate-300 space-y-2 leading-relaxed">
+                    <!-- Math Solution latex -->
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button id="next-btn" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
+                        <span>Câu tiếp theo</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RESULT SCREEN -->
+        <div id="result-screen" class="w-full glass-card rounded-3xl p-6 md:p-10 text-center hidden">
+            <div class="inline-block p-4 rounded-full bg-slate-800 border border-purple-500/50 mb-4 shadow-2xl">
+                <i class="fa-solid fa-crown text-5xl text-amber-400 animate-pulse"></i>
+            </div>
+
+            <h2 class="text-3xl font-extrabold text-white mb-1">Hoàn Thành Bài Thi!</h2>
+            <p id="rank-title" class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-6">
+                Danh hiệu: Đang tính toán...
+            </p>
+
+            <!-- Results Summary Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/30">
+                    <span class="text-xs text-slate-400 block mb-1">Tổng điểm</span>
+                    <span id="final-score" class="text-2xl font-black text-amber-400">0</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-pink-950/40 border border-pink-500/30">
+                    <span class="text-xs text-slate-400 block mb-1">Số câu đúng</span>
+                    <span id="correct-count" class="text-2xl font-black text-purple-300">0/10</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30">
+                    <span class="text-xs text-slate-400 block mb-1">Thời gian làm</span>
+                    <span id="total-time" class="text-2xl font-black text-cyan-400">0s</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30">
+                    <span class="text-xs text-slate-400 block mb-1">Streak tối đa</span>
+                    <span id="max-streak" class="text-2xl font-black text-emerald-400">0</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                <button id="restart-btn" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-cyan-500 via-purple-600 to-pink-500 hover:opacity-90 text-white font-extrabold rounded-2xl shadow-lg transition-all">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Chơi Lại Bài Thi
+                </button>
+                <button id="toggle-review-btn" class="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-purple-500/40 transition-all">
+                    <i class="fa-solid fa-list-check mr-2"></i> Xem Lại Đáp Án
+                </button>
+            </div>
+
+            <!-- Review Container -->
+            <div id="review-container" class="hidden text-left space-y-4 max-h-[400px] overflow-y-auto pr-2 border-t border-purple-900/50 pt-6">
+                <!-- Dynamically populated review content -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-4xl mx-auto w-full text-center py-4 text-xs text-slate-400 mt-4">
+        Chương Trình Toán 12 THPT - Chuyên Đề Đường Tiệm Cận Của Đồ Thị Hàm Số
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /*
+         * QUESTION DATASET - 10 QUESTIONS
+         * 3 Nhận biết (1-3)
+         * 5 Thông hiểu (4-8)
+         * 2 Vận dụng (9-10)
+         */
+        const questionsData = [
+            // CÂU 1: NHẬN BIẾT - Tiệm cận hàm nhất biến
+            {
+                id: 1,
+                level: "Nhận biết",
+                question: "Đường tiệm cận đứng của đồ thị hàm số $y = \\frac{2x + 1}{x - 3}$ là đường thẳng nào?",
+                options: [
+                    "$x = 3$",
+                    "$y = 2$",
+                    "$x = -3$",
+                    "$y = 3$"
+                ],
+                correct: 0,
+                explanation: "Tập xác định: $D = \\mathbb{R} \\setminus \\{3\\}$.\nCho mẫu số bằng $0 \\Rightarrow x - 3 = 0 \\Leftrightarrow x = 3$.\nVì $\\lim_{x \\to 3^+} \\frac{2x+1}{x-3} = +\\infty$ nên đường thẳng $x = 3$ là tiệm cận đứng của đồ thị hàm số."
+            },
+            // CÂU 2: NHẬN BIẾT - Tiệm cận qua định nghĩa giới hạn
+            {
+                id: 2,
+                level: "Nhận biết",
+                question: "Cho hàm số $y = f(x)$ xác định trên $\\mathbb{R} \\setminus \\{1\\}$ thỏa mãn $\\lim_{x \\to 1^+} f(x) = -\\infty$ và $\\lim_{x/ \\to +\\infty} f(x) = 2$. Khẳng định nào sau đây là **đúng**?",
+                options: [
+                    "Đồ thị có tiệm cận đứng $x = 1$ và tiệm cận ngang $y = 2$",
+                    "Đồ thị có tiệm cận đứng $y = 2$ và tiệm cận ngang $x = 1$",
+                    "Đồ thị chỉ có duy nhất tiệm cận đứng $x = 1$",
+                    "Đồ thị có tiệm cận đứng $x = -1$ và tiệm cận ngang $y = 2$"
+                ],
+                correct: 0,
+                explanation: "• Vì $\\lim_{x \\to 1^+} f(x) = -\\infty$ nên $x = 1$ là đường tiệm cận đứng.\n• Vì $\\lim_{x \\to +\\infty} f(x) = 2$ nên $y = 2$ là đường tiệm cận ngang."
+            },
+            // CÂU 3: NHẬN BIẾT - Tiệm cận qua bảng biến thiên
+            {
+                id: 3,
+                level: "Nhận biết",
+                question: "Cho hàm số $y = f(x)$ có $\\lim_{x \\to -\\infty} f(x) = 1$, $\\lim_{x \\to +\\infty} f(x) = 1$ và $\\lim_{x/ \\to 2^-} f(x) = +\\infty$. Tổng số đường tiệm cận đứng và tiệm cận ngang của đồ thị hàm số là:",
+                options: [
+                    "$2$",
+                    "$1$",
+                    "$3$",
+                    "$0$"
+                ],
+                correct: 0,
+                explanation: "• Tiệm cận ngang: $\\lim_{x \\to \\pm\\infty} f(x) = 1 \\Rightarrow y = 1$ là $1$ tiệm cận ngang.\n• Tiệm cận đứng: $\\lim_{x \\to 2^-} f(x) = +\\infty \\Rightarrow x = 2$ là $1$ tiệm cận đứng.\nTổng số đường tiệm cận là $1 + 1 = 2$."
+            },
+
+            // CÂU 4: THÔNG HIỂU - Khử nghiệm giữa tử và mẫu
+            {
+                id: 4,
+                level: "Thông hiểu",
+                question: "Tổng số đường tiệm cận đứng và tiệm cận ngang của đồ thị hàm số $y = \\frac{x^2 - 3x + 2}{x^2 - 1}$ là:",
+                options: [
+                    "$2$",
+                    "$3$",
+                    "$1$",
+                    "$4$"
+                ],
+                correct: 0,
+                explanation: "Rút gọn hàm số:\n$$y = \\frac{(x-1)(x-2)}{(x-1)(x+1)} = \\frac{x-2}{x+1} \\quad (với \\ x \\neq 1)$$\n• Cho mẫu $x+1 = 0 \\Leftrightarrow x = -1$. Ta có $\\lim_{x \\to -1^+} y = +\\infty \\Rightarrow x = -1$ là tiệm cận đứng.\n• Bậc tử bằng bậc mẫu nên tiệm cận ngang $y = \\frac{1}{1} = 1$.\n• Tại $x = 1$: $\\lim_{x \\to 1} y = \\frac{-1}{2}$ (không phải tiệm cận đứng).\nVậy đồ thị có 1 tiệm cận đứng ($x=-1$) và 1 tiệm cận ngang ($y=1$), tổng là 2."
+            },
+            // CÂU 5: THÔNG HIỂU - Hàm chứa căn thức ở tử
+            {
+                id: 5,
+                level: "Thông hiểu",
+                question: "Đồ thị hàm số $y = \\frac{\\sqrt{x^2 + 3} - 2}{x - 1}$ có bao nhiêu đường tiệm cận ngang?",
+                options: [
+                    "$2$",
+                    "$1$",
+                    "$0$",
+                    "$3$"
+                ],
+                correct: 0,
+                explanation: "Xét giới hạn khi $x \\to \\pm\\infty$:\n$$\\lim_{x \\to +\\infty} \\frac{\\sqrt{x^2 + 3} - 2}{x - 1} = \\lim_{x \\to +\\infty} \\frac{x\\sqrt{1 + \\frac{3}{x^2}} - 2}{x(1 - \\frac{1}{x})} = 1 \\Rightarrow y = 1$$\n$$\\lim_{x \\to -\\infty} \\frac{\\sqrt{x^2 + 3} - 2}{x - 1} = \\lim_{x \\to -\\infty} \\frac{-x\\sqrt{1 + \\frac{3}{x^2}} - 2}{x(1 - \\frac{1}{x})} = -1 \\Rightarrow y = -1$$\nDo đó đồ thị hàm số có 2 đường tiệm cận ngang là $y = 1$ và $y = -1$."
+            },
+            // CÂU 6: THÔNG HIỂU - Hàm chứa căn ở mẫu
+            {
+                id: 6,
+                level: "Thông hiểu",
+                question: "Tìm số đường tiệm cận đứng của đồ thị hàm số $y = \\frac{x + 1}{\\sqrt{x^2 - 4}}$.",
+                options: [
+                    "$2$",
+                    "$1$",
+                    "$0$",
+                    "$3$"
+                ],
+                correct: 0,
+                explanation: "Tập xác định: $D = (-\\infty; -2) \\cup (2; +\\infty)$.\nMẫu số bằng $0 \\Leftrightarrow x^2 - 4 = 0 \\Leftrightarrow x = 2$ hoặc $x = -2$.\n• Tại $x = 2^+$: $\\lim_{x \\to 2^+} \\frac{x+1}{\\sqrt{x^2-4}} = \\frac{3}{0^+} = +\\infty \\Rightarrow x = 2$ là tiệm cận đứng.\n• Tại $x = -2^-$: $\\lim_{x \\to -2^-} \\frac{x+1}{\\sqrt{x^2-4}} = \\frac{-1}{0^+} = -\\infty \\Rightarrow x = -2$ là tiệm cận đứng.\nVậy đồ thị có 2 đường tiệm cận đứng."
+            },
+            // CÂU 7: THÔNG HIỂU - Tiệm cận với miền xác định bị giới hạn
+            {
+                id: 7,
+                level: "Thông hiểu",
+                question: "Tổng số đường tiệm cận của đồ thị hàm số $y = \\frac{x - 2}{\\sqrt{4 - x^2}}$ là:",
+                options: [
+                    "$1$",
+                    "$2$",
+                    "$3$",
+                    "$0$"
+                ],
+                correct: 0,
+                explanation: "Tập xác định: $D = (-2; 2)$.\n• Vì TXĐ không chứa $\\pm\\infty$ nên đồ thị **không có tiệm cận ngang**.\n• Xét mẫu số $\\sqrt{4-x^2} = 0 \\Leftrightarrow x = \\pm 2$.\n- Với $x = -2^+$: $\\lim_{x \\to -2^+} \\frac{x-2}{\\sqrt{4-x^2}} = \\frac{-4}{0^+} = -\\infty \\Rightarrow x = -2$ là tiệm cận đứng.\n- Với $x = 2^-$: $\\lim_{x \\to 2^-} \\frac{x-2}{\\sqrt{4-x^2}} = \\lim_{x \\to 2^-} \\frac{-(2-x)}{\\sqrt{(2-x)(2+x)}} = \\lim_{x \\to 2^-} \\frac{-\\sqrt{2-x}}{\\sqrt{2+x}} = 0$ (Không là tiệm cận đứng).\nVậy đồ thị hàm số chỉ có 1 đường tiệm cận đứng $x = -2$."
+            },
+            // CÂU 8: THÔNG HIỂU - Tìm m đơn giản
+            {
+                id: 8,
+                level: "Thông hiểu",
+                question: "Tìm giá trị của tham số $m$ để đồ thị hàm số $y = \\frac{x - 1}{x + m}$ có đường tiệm cận đứng đi qua điểm $A(2; 3)$.",
+                options: [
+                    "$m = -2$",
+                    "$m = 2$",
+                    "$m = -3$",
+                    "$m = 3$"
+                ],
+                correct: 0,
+                explanation: "Đường tiệm cận đứng của đồ thị hàm số $y = \\frac{x-1}{x+m}$ (với $m \\neq -1$) là $x = -m$.\nTiệm cận đứng đi qua điểm $A(2; 3)$ tức là $x = 2$.\nSuy ra: $-m = 2 \\Leftrightarrow m = -2$.\nThử lại với $m = -2$, hàm số $y = \\frac{x-1}{x-2}$ có tiệm cận đứng $x = 2$ (thỏa mãn)."
+            },
+
+            // CÂU 9: VẬN DỤNG - Tham số m để có đúng 2 tiệm cận đứng
+            {
+                id: 9,
+                level: "Vận dụng",
+                question: "Tìm tất cả các giá trị thực của tham số $m$ để đồ thị hàm số $y = \\frac{x - 1}{x^2 - 2mx + 4}$ có đúng $2$ đường tiệm cận đứng.",
+                options: [
+                    "$m \\in (-\\infty; -2) \\cup (2; +\\infty) \\setminus \\left\\{\\frac{5}{2}\\right\\}$",
+                    "$m \\in (-2; 2)$",
+                    "$m \\in (-\\infty; -2) \\cup (2; +\\infty)$",
+                    "$m = \\frac{5}{2}$"
+                ],
+                correct: 0,
+                explanation: "Đồ thị có đúng 2 tiệm cận đứng $\\Leftrightarrow$ Mẫu số $g(x) = x^2 - 2mx + 4 = 0$ có $2$ nghiệm phân biệt khác $1$.\n1) $\\Delta' = m^2 - 4 > 0 \\Leftrightarrow m < -2$ hoặc $m > 2$.\n2) $g(1) \\neq 0 \\Leftrightarrow 1^2 - 2m(1) + 4 \\neq 0 \\Leftrightarrow 5 - 2m \\neq 0 \\Leftrightarrow m \\neq \\frac{5}{2}$.\nKết hợp điều kiện: $m \\in (-\\infty; -2) \\cup (2; +\\infty) \\setminus \\left\\{\\frac{5}{2}\\right\\}$."
+            },
+            // CÂU 10: VẬN DỤNG - Diện tích hình chữ nhật tạo bởi tiệm cận
+            {
+                id: 10,
+                level: "Vận dụng",
+                question: "Hai đường tiệm cận của đồ thị hàm số $y = \\frac{2x + 1}{x - 1}$ cùng với hai trục tọa độ $Ox, Oy$ tạo thành một hình chữ nhật. Diện tích của hình chữ nhật đó bằng:",
+                options: [
+                    "$2$",
+                    "$1$",
+                    "$3$",
+                    "$4$"
+                ],
+                correct: 0,
+                explanation: "• Tiệm cận đứng: $x = 1$.\n• Tiệm cận ngang: $y = 2$.\nGiao điểm của hai đường tiệm cận là $I(1; 2)$.\nHình chữ nhật được tạo thành bởi $x = 0, x = 1, y = 0, y = 2$ có các kích thước chiều rộng $a = |1| = 1$ và chiều dài $b = |2| = 2$.\nDiện tích hình chữ nhật: $S = a \\cdot b = 1 \\cdot 2 = 2$."
+            }
+        ];
+
+        // GAME STATE
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let timer = null;
+        let timeLeft = 60;
+        const QUESTION_TIME = 60;
+        let userAnswers = [];
+        let totalTimeSpent = 0;
+        let soundEnabled = true;
+
+        // WEB AUDIO API SYNTHESIZER
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3); // A5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.35); // A2
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                } else if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio Error:", e);
+            }
+        }
+
+        // DOM ELEMENTS
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const soundToggleBtn = document.getElementById('sound-toggle-btn');
+        const soundIcon = document.getElementById('sound-icon');
+
+        const questionCountEl = document.getElementById('question-count');
+        const difficultyBadgeEl = document.getElementById('difficulty-badge');
+        const streakCountEl = document.getElementById('streak-count');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const timerBarEl = document.getElementById('timer-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const explanationBoxEl = document.getElementById('explanation-box');
+        const explanationContentEl = document.getElementById('explanation-content');
+
+        // EVENT LISTENERS
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', loadNextQuestion);
+        
+        soundToggleBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundIcon.className = soundEnabled ? 'fa-solid fa-volume-high text-purple-400' : 'fa-solid fa-volume-xmark text-slate-500';
+        });
+
+        document.getElementById('toggle-review-btn').addEventListener('click', () => {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.classList.toggle('hidden');
+        });
+
+        // START GAME
+        function startGame() {
+            playSound('click');
+            currentQuestionIdx = 0;
+            score = 0;
+            streak = 0;
+            maxStreak = 0;
+            userAnswers = [];
+            totalTimeSpent = 0;
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            renderQuestion();
+        }
+
+        // RENDER QUESTION
+        function renderQuestion() {
+            const q = questionsData[currentQuestionIdx];
+
+            explanationBoxEl.classList.add('hidden');
+            optionsContainerEl.innerHTML = '';
+            
+            questionCountEl.innerText = `Câu ${currentQuestionIdx + 1}/${questionsData.length}`;
+            difficultyBadgeEl.innerText = q.level;
+            
+            if (q.level === "Nhận biết") {
+                difficultyBadgeEl.className = "px-3 py-1 rounded-xl bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-semibold";
+            } else if (q.level === "Thông hiểu") {
+                difficultyBadgeEl.className = "px-3 py-1 rounded-xl bg-purple-950/80 border border-purple-500/50 text-purple-300 text-xs font-semibold";
+            } else {
+                difficultyBadgeEl.className = "px-3 py-1 rounded-xl bg-pink-950/80 border border-pink-500/50 text-pink-300 text-xs font-semibold";
+            }
+
+            streakCountEl.innerText = streak;
+            scoreDisplayEl.innerText = score;
+
+            questionTextEl.innerHTML = q.question;
+
+            const labels = ['A', 'B', 'C', 'D'];
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full p-4 rounded-2xl bg-slate-900/80 border border-purple-500/20 text-left flex items-center space-x-3 text-slate-200 hover:text-white`;
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-purple-950/80 text-pink-400 font-bold flex items-center justify-center shrink-0 border border-purple-500/40">${labels[idx]}</span>
+                    <span class="text-sm md:text-base font-normal leading-normal">${optText}</span>
+                `;
+                btn.onclick = () => handleSelectAnswer(idx);
+                optionsContainerEl.appendChild(btn);
+            });
+
+            // Trigger KaTeX rendering
+            renderMathInElement(quizScreen, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+
+            startTimer();
+        }
+
+        // TIMER LOGIC
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = QUESTION_TIME;
+            updateTimerBar();
+
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerBar();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleSelectAnswer(-1); // Timeout
+                }
+            }, 1000);
+        }
+
+        function updateTimerBar() {
+            const percentage = (timeLeft / QUESTION_TIME) * 100;
+            timerBarEl.style.width = `${percentage}%`;
+            
+            if (percentage < 30) {
+                timerBarEl.className = "bg-gradient-to-r from-red-500 to-pink-600 h-full transition-all duration-1000 ease-linear";
+            } else {
+                timerBarEl.className = "bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 h-full transition-all duration-1000 ease-linear";
+            }
+        }
+
+        // HANDLE ANSWER SELECTION
+        function handleSelectAnswer(selectedIdx) {
+            clearInterval(timer);
+
+            const q = questionsData[currentQuestionIdx];
+            const optionBtns = optionsContainerEl.querySelectorAll('button');
+            
+            optionBtns.forEach(btn => btn.disabled = true);
+
+            const isCorrect = (selectedIdx === q.correct);
+            const timeTaken = QUESTION_TIME - timeLeft;
+            totalTimeSpent += timeTaken;
+
+            if (isCorrect) {
+                playSound('correct');
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+                
+                const timeBonus = Math.floor(timeLeft * 1.5);
+                const streakBonus = streak * 25;
+                const points = 100 + timeBonus + streakBonus;
+                score += points;
+
+                if (selectedIdx >= 0) {
+                    optionBtns[selectedIdx].classList.remove('bg-slate-900/80', 'border-purple-500/20');
+                    optionBtns[selectedIdx].classList.add('bg-emerald-950/90', 'border-emerald-500', 'text-emerald-200');
+                }
+
+                if (streak >= 3) {
+                    confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
+                }
+
+            } else {
+                playSound('wrong');
+                streak = 0;
+
+                quizScreen.classList.add('animate-shake');
+                setTimeout(() => quizScreen.classList.remove('animate-shake'), 400);
+
+                if (selectedIdx >= 0) {
+                    optionBtns[selectedIdx].classList.remove('bg-slate-900/80', 'border-purple-500/20');
+                    optionBtns[selectedIdx].classList.add('bg-rose-950/90', 'border-rose-500', 'text-rose-200');
+                }
+
+                optionBtns[q.correct].classList.remove('bg-slate-900/80', 'border-purple-500/20');
+                optionBtns[q.correct].classList.add('bg-emerald-950/90', 'border-emerald-500', 'text-emerald-200');
+            }
+
+            userAnswers.push({
+                questionIdx: currentQuestionIdx,
+                selectedIdx: selectedIdx,
+                isCorrect: isCorrect,
+                timeSpent: timeTaken
+            });
+
+            streakCountEl.innerText = streak;
+            scoreDisplayEl.innerText = score;
+
+            explanationContentEl.innerHTML = q.explanation;
+            explanationBoxEl.classList.remove('hidden');
+
+            renderMathInElement(explanationBoxEl, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+        }
+
+        // NEXT QUESTION
+        function loadNextQuestion() {
+            playSound('click');
+            currentQuestionIdx++;
+            if (currentQuestionIdx < questionsData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // SHOW RESULTS
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            const rankTitleEl = document.getElementById('rank-title');
+            
+            if (correctCount === 10) {
+                rankTitleEl.innerText = "Danh hiệu: 🏆 Bậc Thầy Khảo Sát Đồ Thị Toán 12";
+                confetti({ particleCount: 180, spread: 100, origin: { y: 0.6 } });
+            } else if (correctCount >= 8) {
+                rankTitleEl.innerText = "Danh hiệu: 🥇 Cao Thủ Đường Tiệm Cận";
+                confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+            } else if (correctCount >= 5) {
+                rankTitleEl.innerText = "Danh hiệu: 🥈 Học Sinh Khá Khảo Sát Hàm Số";
+            } else {
+                rankTitleEl.innerText = "Danh hiệu: 🥉 Cần Tăng Cường Ôn Lại Lý Thuyết Tiệm Cận";
+            }
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = `${correctCount}/${questionsData.length}`;
+            document.getElementById('total-time').innerText = `${totalTimeSpent}s`;
+            document.getElementById('max-streak').innerText = maxStreak;
+
+            // Populate Review List
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const ans = userAnswers[idx];
+                const labels = ['A', 'B', 'C', 'D'];
+                
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border ${ans.isCorrect ? 'bg-emerald-950/20 border-emerald-500/40' : 'bg-rose-950/20 border-rose-500/40'}`;
+
+                let userAnsText = ans.selectedIdx >= 0 ? `${labels[ans.selectedIdx]}. ${q.options[ans.selectedIdx]}` : "Hết thời gian";
+                let correctAnsText = `${labels[q.correct]}. ${q.options[q.correct]}`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-sm ${ans.isCorrect ? 'text-emerald-400' : 'text-rose-400'}">
+                            Câu ${idx + 1} (${q.level}) - ${ans.isCorrect ? 'Đúng' : 'Sai'}
+                        </span>
+                        <span class="text-xs text-slate-400">${ans.timeSpent}s</span>
+                    </div>
+                    <div class="text-sm text-slate-200 mb-2">${q.question}</div>
+                    <div class="text-xs space-y-1 mb-3">
+                        <p class="${ans.isCorrect ? 'text-emerald-300' : 'text-rose-300'}">Bạn chọn: ${userAnsText}</p>
+                        ${!ans.isCorrect ? `<p class="text-emerald-400 font-medium">Đáp án đúng: ${correctAnsText}</p>` : ''}
+                    </div>
+                    <div class="text-xs text-slate-300 bg-slate-900/80 p-3 rounded-xl border border-purple-500/20">
+                        <span class="font-semibold text-pink-400 block mb-1">Lời giải chi tiết:</span>
+                        <div>${q.explanation}</div>
+                    </div>
+                `;
+                reviewContainer.appendChild(card);
+            });
+
+            renderMathInElement(reviewContainer, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError : false
+            });
+        }
+    </script>
+</body>
+</html>
